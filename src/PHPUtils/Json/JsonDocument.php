@@ -41,6 +41,12 @@ class JsonDocument implements ArrayAccess, JsonSerializable
         return $this->jsonEncodeOptions;
     }
 
+    public function combine(object ...$sources)
+    {
+        Json::combine($this->jsonData, ...$sources);
+        return $this;
+    }
+
     public function setOptions(int $options)
     {
         $this->jsonEncodeOptions = $options;
@@ -93,4 +99,46 @@ class JsonDocument implements ArrayAccess, JsonSerializable
     {
         return $this->jsonData;
     }
+
+    public function __isset(string $name)
+    {
+        return Json::exists($this->jsonData, $name);
+    }
+
+    public function __unset(string $name)
+    {
+        return Json::remove($this->jsonData, $name);
+    }
+
+    public function __get(string $name)
+    {
+        return Json::get($this->jsonData, $name);
+    }
+
+    public function __set(string $name, string $value)
+    {
+        Json::set($this->jsonData, $name, $value);
+    }
+
+    public function get(string $address, $default = null, string $delimiter = '.')
+    {
+        return Json::get($this->jsonData, $address, $default, $delimiter);
+    }
+
+    public function set(string $address, $value, string $delimiter = '.')
+    {
+        Json::set($this->jsonData, $address, $value, $delimiter);
+        return $this;
+    }
+
+    public function remove(string $address, string $delimiter = '.')
+    {
+        Json::remove($this->jsonData, $address, $delimiter);
+    }
+
+    public function exists(string $address, string $delimiter = '.')
+    {
+        return Json::exists($this->jsonData, $address, $delimiter);
+    }
+
 }

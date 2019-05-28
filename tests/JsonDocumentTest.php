@@ -59,4 +59,38 @@ final class JsonDocumentTest extends TestCase
         $this->assertSame($doc['foo.bar'], null);
         $this->assertFalse(isset($doc['foo.bar']));
     }
+
+    public function testMagicAccessors()
+    {
+        $doc = JsonDocument::fromString('{"foo": {"bar": "baz", "qux": ["quux", "quuz", "corge"]}}');
+
+        $this->assertSame($doc->foo->bar, "baz");
+        $this->assertSame($doc->{"foo.bar"}, "baz");
+        $this->assertTrue(isset($doc->{"foo.bar"}));
+        $this->assertFalse(isset($doc->{"foo.bar.whatever"}));
+        unset($doc->{"foo.bar"});
+        $this->assertFalse(isset($doc->{"foo.bar"}));
+    }
+
+    public function testTraditionalAccessories()
+    {
+        $doc = JsonDocument::fromString('{"foo": {"bar": "baz", "qux": ["quux", "quuz", "corge"]}}');
+
+        $this->assertSame($doc->get('foo.bar'), "baz");
+        $this->assertTrue($doc->exists("foo.bar"));
+        $this->assertFalse($doc->exists("foo.bar.whatever"));
+        $doc->remove("foo.bar");
+        $this->assertFalse($doc->exists("foo.bar"));
+    }
+
+    public function testCombine()
+    {
+        $doc = JsonDocument::fromString('{"foo": "bar"}');
+        $source = json_decode('{"baz": "qux"}');
+
+        $doc->combine($source);
+
+        $this->assertSame($doc->foo, "bar");
+        $this->assertSame($doc->baz, "qux");
+    }
 }
